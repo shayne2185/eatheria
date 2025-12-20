@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eatheria">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eatheria – Zen Flow</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: radial-gradient(circle at 50% 30%, #2a3b52, #0b1118);
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #e6edf3;
+}
+
+#frame {
+  padding: 18px 20px 22px;
+  border-radius: 26px;
+  background: rgba(12,18,26,0.7);
+  box-shadow: 0 25px 70px rgba(0,0,0,0.65);
+}
+
+#topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#title {
+  letter-spacing: 0.3em;
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+#sound {
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.tile {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  transition: transform 0.25s ease, opacity 1.2s ease, filter 1.2s ease;
+  touch-action: none;
+}
+
+.tile.remove {
+  opacity: 0;
+  transform: scale(1.15);
+  filter: blur(6px);
+}
+
+#flow {
+  margin-top: 14px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  opacity: 0.65;
+  text-align: center;
+}
+</style>
+</head>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+<body>
+<div id="frame">
+  <div id="topbar">
+    <div id="title">EATHERIA</div>
+    <div id="sound">🔊</div>
+  </div>
+  <div id="grid"></div>
+  <div id="flow">Prvý deň</div>
+</div>
+
+<audio id="ambient" loop>
+  <source src="data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YRAAAAAA" type="audio/wav">
+</audio>
+
+<script>
+const ROWS=7, COLS=6;
+const gridEl=document.getElementById("grid");
+const flowEl=document.getElementById("flow");
+const soundBtn=document.getElementById("sound");
+const ambient=document.getElementById("ambient");
+
+const ELEMENTS=["🍃","🪨","🔥","💧","🌀"];
+let grid=[], locked=false;
+let playTime=0, day=1;
+
+let startX,startY,startR,startC;
+
+function rand(){return Math.floor(Math.random()*ELEMENTS.length);}
+
+function init(){
+  for(let r=0;r<ROWS;r++){
+    grid[r]=[];
+    for(let c=0;c<COLS;c++){
+      let e;
+      do{
+        e=rand();
+        grid[r][c]=e;
+      }while(
+        (c>1 && grid[r][c-1]==e && grid[r][c-2]==e) ||
+        (r>1 && grid[r-1][c]==e && grid[r-2][c]==e)
+      );
+    }
+  }
+  draw();
+}
+
+function draw(){
+  gridEl.innerHTML="";
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const d=document.createElement("div");
+    d.className="tile";
+    d.textContent=ELEMENTS[grid[r][c]];
+    d.dataset.r=r; d.dataset.c=c;
+    d.addEventListener("touchstart",start);
+    d.addEventListener("touchend",end);
+    d.addEventListener("mousedown",start);
+    d.addEventListener("mouseup",end);
+    gridEl.appendChild(d);
+  }
+}
+
+function start(e){
+  if(locked) return;
+  const t=e.currentTarget;
+  startX=(e.touches?e.touches[0].clientX:e.clientX);
+  startY=(e.touches?e.touches[0].clientY:e.clientY);
+  startR=+t.dataset.r;
+  startC=+t.dataset.c;
+}
+
+function end(e){
+  if(locked) return;
+  const x=(e.changedTouches?e.changedTouches[0].clientX:e.clientX)-startX;
+  const y=(e.changedTouches?e.changedTouches[0].clientY:e.clientY)-startY;
+  let r=startR, c=startC;
+  if(Math.abs(x)>Math.abs(y)) c+=x>0?1:-1;
+  else r+=y>0?1:-1;
+  if(r<0||r>=ROWS||c<0||c>=COLS) return;
+  swap(startR,startC,r,c);
+}
+
+function swap(r1,c1,r2,c2){
+  locked=true;
+  [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
+  draw();
+  setTimeout(()=>{
+    const m=findMatches();
+    if(m.length) resolve(m);
+    else{
+      [grid[r1][c1],grid[r2][c2]]=[grid[r2][c2],grid[r1][c1]];
+      draw(); locked=false;
+    }
+  },300);
+}
+
+function findMatches(){
+  const m=[];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS-2;c++){
+    let e=grid[r][c];
+    if(e==grid[r][c+1]&&e==grid[r][c+2])
+      m.push({r,c},{r,c:c+1},{r,c:c+2});
+  }
+  for(let c=0;c<COLS;c++)for(let r=0;r<ROWS-2;r++){
+    let e=grid[r][c];
+    if(e==grid[r+1][c]&&e==grid[r+2][c])
+      m.push({r,c},{r:r+1,c},{r:r+2,c});
+  }
+  return m;
+}
+
+function resolve(m){
+  m.forEach(p=>grid[p.r][p.c]=null);
+  draw();
+  setTimeout(()=>{
+    for(let c=0;c<COLS;c++){
+      let col=[];
+      for(let r=ROWS-1;r>=0;r--) if(grid[r][c]!=null) col.push(grid[r][c]);
+      for(let r=ROWS-1;r>=0;r--) grid[r][c]=col.shift()??rand();
+    }
+    draw();
+    const again=findMatches();
+    if(again.length) resolve(again);
+    else locked=false;
+  },800);
+}
+
+setInterval(()=>{
+  playTime++;
+  if(playTime%60==0){
+    day++;
+    flowEl.textContent="Deň "+day;
+  }
+},1000);
+
+soundBtn.onclick=()=>{
+  if(ambient.paused){ambient.play(); soundBtn.textContent="🔊";}
+  else{ambient.pause(); soundBtn.textContent="🔇";}
+};
+
+init();
+</script>
+</body>
+</html>
