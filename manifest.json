@@ -1,16 +1,9 @@
 {
-  "name": "Eatheria",
+  "name": "Eatheria Zen",
   "short_name": "Eatheria",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b1118",
-  "theme_color": "#0b1118",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "background_color": "#05080f",
+  "theme_color": "#05080f",
+  "orientation": "portrait"
 }
