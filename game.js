@@ -1,139 +1,84 @@
-console.log("GAME JS LOADED");
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const menu=document.getElementById("menu");
+document.getElementById("startBtn").onclick=start;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let COLS=5,ROWS=7,SIZE,grid=[],sel=null;
+const types=["leaf","stone","fire","water","air"];
+const col={leaf:"#6bbf7a",stone:"#555",fire:"#e07a5f",water:"#5fa8d3",air:"#eee"};
 
-const COLS = 5;
-const ROWS = 7;
-const SIZE = Math.min(canvas.width / COLS, canvas.height / (ROWS + 1));
-const SWAP_TIME = 180;
-
-const TYPES = ["leaf", "stone", "fire", "water", "air"];
-
-let grid = [];
-let animating = false;
-let activeSwap = null;
-
-// ---------------- INIT ----------------
-
-function startGame() {
-  document.getElementById("menu").style.display = "none";
-  canvas.style.display = "block";
-  initGrid();
-  requestAnimationFrame(loop);
+function start(){
+menu.style.display="none";
+canvas.style.display="block";
+resize();
+init();
+loop();
 }
 
-function initGrid() {
-  grid = [];
-  for (let r = 0; r < ROWS; r++) {
-    let row = [];
-    for (let c = 0; c < COLS; c++) {
-      row.push(makeTile(r, c, randomType()));
-    }
-    grid.push(row);
-  }
+function resize(){
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+SIZE=Math.min(canvas.width/COLS,canvas.height/(ROWS+1));
+}
+addEventListener("resize",resize);
+
+function init(){
+grid=[];
+for(let r=0;r<ROWS;r++){
+let row=[];
+for(let c=0;c<COLS;c++)row.push(types[Math.random()*5|0]);
+grid.push(row);
+}
 }
 
-function randomType() {
-  return TYPES[Math.floor(Math.random() * TYPES.length)];
+function loop(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+draw();
+requestAnimationFrame(loop);
 }
 
-function makeTile(r, c, type) {
-  return {
-    r, c,
-    type,
-    x: c * SIZE + SIZE / 2,
-    y: canvas.height - (r + 1) * SIZE,
-    tx: null,
-    ty: null,
-    t: 0
-  };
+function draw(){
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+let t=grid[r][c]; if(!t)continue;
+ctx.beginPath();
+ctx.arc(c*SIZE+SIZE/2,canvas.height-(r+1)*SIZE,SIZE*0.35,0,7);
+ctx.fillStyle=col[t];
+ctx.fill();
+}
 }
 
-// ---------------- LOOP ----------------
+canvas.onpointerdown=e=>{
+let r=Math.floor((canvas.height-e.clientY)/SIZE);
+let c=Math.floor(e.clientX/SIZE);
+if(!grid[r])return;
+if(!sel) sel={r,c};
+else{
+if(Math.abs(sel.r-r)+Math.abs(sel.c-c)==1){
+[grid[sel.r][sel.c],grid[r][c]]=[grid[r][c],grid[sel.r][sel.c]];
+match();
+}
+sel=null;
+}
+};
 
-function loop(ts) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawGrid();
-  updateAnimations();
-  requestAnimationFrame(loop);
+function match(){
+let rem=[];
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS-2;c++){
+let t=grid[r][c];
+if(t&&t==grid[r][c+1]&&t==grid[r][c+2])
+rem.push([r,c],[r,c+1],[r,c+2]);
+}
+if(rem.length){
+rem.forEach(p=>grid[p[0]][p[1]]=null);
+setTimeout(refill,200);
+}
 }
 
-// ---------------- DRAW ----------------
-
-function drawGrid() {
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      drawIcon(grid[r][c]);
-    }
-  }
+function refill(){
+for(let c=0;c<COLS;c++){
+let s=[];
+for(let r=0;r<ROWS;r++)if(grid[r][c])s.push(grid[r][c]);
+while(s.length<ROWS)s.unshift(types[Math.random()*5|0]);
+for(let r=0;r<ROWS;r++)grid[r][c]=s[r];
 }
-
-function drawIcon(tile) {
-  ctx.save();
-  ctx.translate(tile.x, tile.y);
-
-  if (tile.type === "leaf") {
-    ctx.fillStyle = "#6bbf7a";
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 14, 22, Math.PI / 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  if (tile.type === "stone") {
-    ctx.fillStyle = "#444";
-    ctx.beginPath();
-    ctx.moveTo(-16, 10);
-    ctx.lineTo(-6, -18);
-    ctx.lineTo(14, -12);
-    ctx.lineTo(18, 8);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  if (tile.type === "fire") {
-    ctx.fillStyle = "#e07a5f";
-    ctx.beginPath();
-    ctx.moveTo(0, -22);
-    ctx.quadraticCurveTo(14, 0, 0, 22);
-    ctx.quadraticCurveTo(-14, 0, 0, -22);
-    ctx.fill();
-  }
-
-  if (tile.type === "water") {
-    ctx.fillStyle = "#5fa8d3";
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  if (tile.type === "air") {
-    ctx.strokeStyle = "#eee";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(0, 0, 14, 0, Math.PI * 1.5);
-    ctx.stroke();
-  }
-
-  ctx.restore();
 }
-
-// ---------------- INPUT ENGINE ----------------
-
-let dragStart = null;
-
-canvas.addEventListener("pointerdown", e => {
-  if (animating) return;
-
-  const pos = getCell(e);
-  if (!pos) return;
-
-  dragStart = pos;
-});
-
-canvas.addEventListener("pointerup", e => {
-  if (!dragStart || animating) return;
-
-  const pos = getCell(e);

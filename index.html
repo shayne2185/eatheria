@@ -1,53 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Eatheria</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eatheria Zen</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-
-<meta name="theme-color" content="#05080f">
 </head>
-
 <body>
-
 <div id="menu">
-  <h1>EATHERIA</h1>
-  <p>breath · play · relax</p>
-
-  <button id="startBtn" onclick="startGame()">Start</button>
-
-  <div class="options">
-    <label>
-      <input type="checkbox" id="soundToggle" checked>
-      Sound
-    </label>
-
-    <label>
-      Flow
-      <select id="flow">
-        <option value="calm">Calm</option>
-        <option value="flow" selected>Flow</option>
-        <option value="deep">Deep</option>
-      </select>
-    </label>
-  </div>
+<h1>Eatheria</h1>
+<p>Breath · Play · Relax</p>
+<button id="startBtn">Start</button>
 </div>
-
 <canvas id="game"></canvas>
-
-<audio id="ambient" loop>
-  <!-- zatiaľ bez súboru – doplníme neskôr -->
-</audio>
-
-<script src="game.js" defer></script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-</script>
-
+<script src="game.js"></script>
 </body>
 </html>
