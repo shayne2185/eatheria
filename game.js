@@ -7,195 +7,132 @@ canvas.height = window.innerHeight;
 const COLS = 5;
 const ROWS = 7;
 const SIZE = Math.min(canvas.width / COLS, canvas.height / (ROWS + 1));
+const SWAP_TIME = 180;
 
-const elements = ["leaf", "stone", "fire", "water", "air"];
-const colors = {
-  leaf: "#5fa96b",
-  stone: "#555",
-  fire: "#d66",
-  water: "#5aa",
-  air: "#eee"
-};
+const TYPES = ["leaf", "stone", "fire", "water", "air"];
 
 let grid = [];
-let selected = null;
 let animating = false;
+let activeSwap = null;
 
-// ---------- START ----------
+// ---------------- INIT ----------------
 
 function startGame() {
   document.getElementById("menu").style.display = "none";
   canvas.style.display = "block";
-
   initGrid();
   requestAnimationFrame(loop);
 }
-
-// ---------- GRID ----------
 
 function initGrid() {
   grid = [];
   for (let r = 0; r < ROWS; r++) {
     let row = [];
     for (let c = 0; c < COLS; c++) {
-      row.push(randomElement());
+      row.push(makeTile(r, c, randomType()));
     }
     grid.push(row);
   }
 }
 
-function randomElement() {
-  return elements[Math.floor(Math.random() * elements.length)];
+function randomType() {
+  return TYPES[Math.floor(Math.random() * TYPES.length)];
 }
 
-// ---------- DRAW ----------
+function makeTile(r, c, type) {
+  return {
+    r, c,
+    type,
+    x: c * SIZE + SIZE / 2,
+    y: canvas.height - (r + 1) * SIZE,
+    tx: null,
+    ty: null,
+    t: 0
+  };
+}
 
-function loop() {
+// ---------------- LOOP ----------------
+
+function loop(ts) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid();
+  updateAnimations();
   requestAnimationFrame(loop);
 }
+
+// ---------------- DRAW ----------------
 
 function drawGrid() {
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      if (!grid[r][c]) continue;
-
-      drawOrb(
-        grid[r][c],
-        c * SIZE + SIZE / 2,
-        canvas.height - (r + 1) * SIZE
-      );
+      drawIcon(grid[r][c]);
     }
   }
 }
 
-function drawOrb(type, x, y) {
-  ctx.beginPath();
-  ctx.arc(x, y, SIZE * 0.35, 0, Math.PI * 2);
-  ctx.fillStyle = colors[type];
-  ctx.shadowColor = colors[type];
-  ctx.shadowBlur = 12;
-  ctx.fill();
-  ctx.shadowBlur = 0;
+function drawIcon(tile) {
+  ctx.save();
+  ctx.translate(tile.x, tile.y);
+
+  if (tile.type === "leaf") {
+    ctx.fillStyle = "#6bbf7a";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 22, Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (tile.type === "stone") {
+    ctx.fillStyle = "#444";
+    ctx.beginPath();
+    ctx.moveTo(-16, 10);
+    ctx.lineTo(-6, -18);
+    ctx.lineTo(14, -12);
+    ctx.lineTo(18, 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if (tile.type === "fire") {
+    ctx.fillStyle = "#e07a5f";
+    ctx.beginPath();
+    ctx.moveTo(0, -22);
+    ctx.quadraticCurveTo(14, 0, 0, 22);
+    ctx.quadraticCurveTo(-14, 0, 0, -22);
+    ctx.fill();
+  }
+
+  if (tile.type === "water") {
+    ctx.fillStyle = "#5fa8d3";
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (tile.type === "air") {
+    ctx.strokeStyle = "#eee";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 1.5);
+    ctx.stroke();
+  }
+
+  ctx.restore();
 }
 
-// ---------- INPUT ----------
+// ---------------- INPUT ENGINE ----------------
+
+let dragStart = null;
 
 canvas.addEventListener("pointerdown", e => {
   if (animating) return;
 
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = canvas.height - (e.clientY - rect.top);
+  const pos = getCell(e);
+  if (!pos) return;
 
-  const c = Math.floor(x / SIZE);
-  const r = Math.floor(y / SIZE);
-
-  if (grid[r] && grid[r][c]) {
-    selected = { r, c };
-  }
+  dragStart = pos;
 });
 
 canvas.addEventListener("pointerup", e => {
-  if (!selected || animating) return;
+  if (!dragStart || animating) return;
 
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = canvas.height - (e.clientY - rect.top);
-
-  const c = Math.floor(x / SIZE);
-  const r = Math.floor(y / SIZE);
-
-  const dr = r - selected.r;
-  const dc = c - selected.c;
-
-  if (Math.abs(dr) + Math.abs(dc) === 1) {
-    swap(selected.r, selected.c, r, c);
-    checkMatches();
-  }
-
-  selected = null;
-});
-
-// ---------- MATCH ----------
-
-function swap(r1, c1, r2, c2) {
-  [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
-}
-
-function checkMatches() {
-  let matches = [];
-
-  // horizontal
-  for (let r = 0; r < ROWS; r++) {
-    let count = 1;
-    for (let c = 1; c <= COLS; c++) {
-      if (c < COLS && grid[r][c] === grid[r][c - 1]) {
-        count++;
-      } else {
-        if (count >= 3) {
-          for (let i = 0; i < count; i++) {
-            matches.push({ r, c: c - 1 - i });
-          }
-        }
-        count = 1;
-      }
-    }
-  }
-
-  // vertical
-  for (let c = 0; c < COLS; c++) {
-    let count = 1;
-    for (let r = 1; r <= ROWS; r++) {
-      if (r < ROWS && grid[r][c] === grid[r - 1][c]) {
-        count++;
-      } else {
-        if (count >= 3) {
-          for (let i = 0; i < count; i++) {
-            matches.push({ r: r - 1 - i, c });
-          }
-        }
-        count = 1;
-      }
-    }
-  }
-
-  if (matches.length) dissolve(matches);
-}
-
-// ---------- DISSOLVE ----------
-
-function dissolve(matches) {
-  animating = true;
-
-  matches.forEach(m => {
-    grid[m.r][m.c] = null;
-  });
-
-  setTimeout(() => {
-    collapse();
-    animating = false;
-  }, 300);
-}
-
-// ---------- BOTTOM-UP FILL ----------
-
-function collapse() {
-  for (let c = 0; c < COLS; c++) {
-    let stack = [];
-    for (let r = 0; r < ROWS; r++) {
-      if (grid[r][c]) stack.push(grid[r][c]);
-    }
-
-    while (stack.length < ROWS) {
-      stack.unshift(randomElement());
-    }
-
-    for (let r = 0; r < ROWS; r++) {
-      grid[r][c] = stack[r];
-    }
-  }
-
-  setTimeout(checkMatches, 100);
-}
+  const pos = getCell(e);
