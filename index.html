@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Eatheria Zen</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Eatheria Zen</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="menu">
-  <h1>Eatheria</h1>
-  <p>Breath · Play · Relax</p>
-  <button id="startBtn">Start</button>
-</div>
-<canvas id="game"></canvas>
-<script src="game.js"></script>
+  <div id="menu" class="fade-in">
+    <div class="menu-inner">
+      <h1 class="logo-text">Eatheria</h1>
+      <p class="subtitle">Breathe · Match · Flow</p>
+      <p class="tagline">A calming endless puzzle in your pocket.</p>
+      <button id="startBtn" class="primary-btn">Begin your session</button>
+    </div>
+  </div>
+
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <span class="hud-label">Flow</span>
+      <span id="score" class="hud-value">0</span>
+    </div>
+    <div class="hud-center">
+      <span class="hud-label">Streak</span>
+      <span id="combo" class="hud-value">x1</span>
+    </div>
+    <div class="hud-right">
+      <button id="menuBtn" class="ghost-btn">Pause</button>
+    </div>
+  </div>
+
+  <canvas id="game"></canvas>
+
+  <div id="overlayMessage" class="hidden"></div>
+
+  <script src="game.js"></script>
 </body>
 </html>
