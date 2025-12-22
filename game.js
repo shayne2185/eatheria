@@ -241,9 +241,8 @@ function drawGrid() {
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       if (grid[r][c] === null) continue;
-
-      const x = c * SIZE + SIZE / 2;
-      const y = canvas.height - (r + 1) * SIZE;
+const x = gridOffsetX + c * SIZE + SIZE / 2;
+const y = gridOffsetY + r * SIZE + SIZE / 2;
       const colors = [
   "#22c55e", // life
   "#64748b", // stone
