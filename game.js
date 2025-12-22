@@ -227,8 +227,14 @@ function drawGrid() {
 
       const x = c * SIZE + SIZE / 2;
       const y = canvas.height - (r + 1) * SIZE;
-
-      ctx.fillStyle = "#334155";
+      const colors = [
+  "#22c55e", // life
+  "#64748b", // stone
+  "#f97316", // fire
+  "#38bdf8", // water
+  "#e5e7eb"  // air
+];
+ctx.fillStyle = colors[grid[r][c]];
       ctx.beginPath();
       ctx.arc(x, y, SIZE * 0.35, 0, Math.PI * 2);
       ctx.fill();
