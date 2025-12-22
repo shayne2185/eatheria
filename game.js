@@ -25,7 +25,24 @@ startBtn.onclick = startGame;
 function startGame() {
   menu.style.display = "none";
   canvas.style.display = "block";
-  resize();
+  resize();let gridOffsetX = 0;
+let gridOffsetY = 0;
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  SIZE = Math.min(
+    canvas.width / COLS,
+    canvas.height / ROWS
+  );
+
+  const gridW = SIZE * COLS;
+  const gridH = SIZE * ROWS;
+
+  gridOffsetX = (canvas.width - gridW) / 2;
+  gridOffsetY = (canvas.height - gridH) / 2;
+}
   initGrid();
   resolveMatches();
   requestAnimationFrame(loop);
