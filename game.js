@@ -1,4 +1,5 @@
-// Eatheria Zen – Aurora Feint–style endless zen match-3
+alert("game.js sa načítal");
+//Eatheria Zen – Aurora Feint–style endless zen match-3
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
