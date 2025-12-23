@@ -1,5 +1,5 @@
 // ===============================
-// EATHERIA ZEN – CORE GRID
+// EATHERIA ZEN – SWIPE & SWAP
 // ===============================
 
 const canvas = document.getElementById("game");
@@ -10,14 +10,13 @@ const startBtn = document.getElementById("startBtn");
 
 let running = false;
 
-// GRID CONFIG
+// GRID
 const COLS = 6;
 const ROWS = 8;
 let SIZE = 0;
 let offsetX = 0;
 let offsetY = 0;
 
-// ELEMENTS (life / stone / fire / water / air)
 const COLORS = [
   "#22c55e", // life
   "#64748b", // stone
@@ -28,18 +27,19 @@ const COLORS = [
 
 let grid = [];
 
+// INPUT
+let swipeStart = null;
+let isSwapping = false;
+
 // -------------------------------
-// START BUTTON
+// START
 // -------------------------------
-startBtn.addEventListener("click", () => {
+startBtn.onclick = () => {
   menu.style.display = "none";
   canvas.style.display = "block";
   startGame();
-});
+};
 
-// -------------------------------
-// GAME START
-// -------------------------------
 function startGame() {
   resize();
   initGrid();
@@ -48,7 +48,7 @@ function startGame() {
 }
 
 // -------------------------------
-// RESIZE & LAYOUT
+// RESIZE
 // -------------------------------
 function resize() {
   canvas.width = window.innerWidth;
@@ -70,7 +70,7 @@ function resize() {
 window.addEventListener("resize", resize);
 
 // -------------------------------
-// GRID INIT
+// GRID
 // -------------------------------
 function initGrid() {
   grid = [];
@@ -84,14 +84,12 @@ function initGrid() {
 }
 
 // -------------------------------
-// MAIN LOOP
+// LOOP
 // -------------------------------
 function loop() {
   if (!running) return;
-
   drawBackground();
   drawGrid();
-
   requestAnimationFrame(loop);
 }
 
@@ -102,7 +100,6 @@ function drawBackground() {
   const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
   g.addColorStop(0, "#020617");
   g.addColorStop(1, "#000000");
-
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
@@ -112,10 +109,8 @@ function drawGrid() {
     for (let c = 0; c < COLS; c++) {
       const x = offsetX + c * SIZE + SIZE / 2;
       const y = offsetY + r * SIZE + SIZE / 2;
-
       const radius = SIZE * 0.38;
 
-      // outer glow
       const glow = ctx.createRadialGradient(
         x, y, radius * 0.2,
         x, y, radius * 1.5
@@ -128,11 +123,67 @@ function drawGrid() {
       ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // core orb
       ctx.fillStyle = COLORS[grid[r][c]];
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
     }
   }
+}
+
+// -------------------------------
+// INPUT → SWIPE
+// -------------------------------
+canvas.addEventListener("pointerdown", e => {
+  if (isSwapping) return;
+  swipeStart = getCell(e.clientX, e.clientY);
+});
+
+canvas.addEventListener("pointerup", e => {
+  if (!swipeStart || isSwapping) return;
+
+  const end = getCell(e.clientX, e.clientY);
+  if (!end) {
+    swipeStart = null;
+    return;
+  }
+
+  const dr = end.r - swipeStart.r;
+  const dc = end.c - swipeStart.c;
+
+  if (Math.abs(dr) + Math.abs(dc) !== 1) {
+    swipeStart = null;
+    return;
+  }
+
+  swapCells(swipeStart, end);
+  swipeStart = null;
+});
+
+// -------------------------------
+// HELPERS
+// -------------------------------
+function getCell(x, y) {
+  const cx = x - offsetX;
+  const cy = y - offsetY;
+  if (cx < 0 || cy < 0) return null;
+
+  const c = Math.floor(cx / SIZE);
+  const r = Math.floor(cy / SIZE);
+
+  if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return null;
+  return { r, c };
+}
+
+function swapCells(a, b) {
+  isSwapping = true;
+
+  const temp = grid[a.r][a.c];
+  grid[a.r][a.c] = grid[b.r][b.c];
+  grid[b.r][b.c] = temp;
+
+  // short zen delay
+  setTimeout(() => {
+    isSwapping = false;
+  }, 120);
 }
