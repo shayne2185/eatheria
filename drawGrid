@@ -1,0 +1,50 @@
+function drawIcon(type, x, y, size) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = size * 0.12;
+  ctx.globalAlpha = 1;
+
+  const s = size * 0.28;
+
+  ctx.beginPath();
+
+  if (type === 0) {
+    // LIFE – list
+    ctx.moveTo(0, s);
+    ctx.quadraticCurveTo(s, 0, 0, -s);
+    ctx.quadraticCurveTo(-s, 0, 0, s);
+  }
+
+  if (type === 1) {
+    // STONE
+    ctx.moveTo(0, -s);
+    ctx.lineTo(s, 0);
+    ctx.lineTo(0, s);
+    ctx.lineTo(-s, 0);
+    ctx.closePath();
+  }
+
+  if (type === 2) {
+    // FIRE
+    ctx.moveTo(0, s);
+    ctx.quadraticCurveTo(s * 0.8, 0, 0, -s);
+    ctx.quadraticCurveTo(-s * 0.6, 0, 0, s);
+  }
+
+  if (type === 3) {
+    // WATER
+    ctx.moveTo(0, -s);
+    ctx.quadraticCurveTo(s, s * 0.5, 0, s);
+    ctx.quadraticCurveTo(-s, s * 0.5, 0, -s);
+  }
+
+  if (type === 4) {
+    // ETHER – špirála
+    ctx.arc(0, 0, s, Math.PI * 0.3, Math.PI * 1.8);
+  }
+
+  ctx.stroke();
+  ctx.restore();
+}
