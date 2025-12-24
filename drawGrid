@@ -1,0 +1,43 @@
+function drawGrid() {
+  const orbStyles = [
+    ["#34d399", "#059669"], // life
+    ["#38bdf8", "#0284c7"], // water
+    ["#fb923c", "#c2410c"], // fire
+    ["#94a3b8", "#475569"]  // stone
+  ];
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const type = grid[r][c];
+      if (type === null) continue;
+
+      const x = offsetX + c * SIZE + SIZE / 2;
+      const y = offsetY + r * SIZE + SIZE / 2;
+      const radius = SIZE * 0.36;
+
+      // gradient
+      const grad = ctx.createRadialGradient(
+        x - radius * 0.3,
+        y - radius * 0.3,
+        radius * 0.2,
+        x,
+        y,
+        radius
+      );
+
+      grad.addColorStop(0, orbStyles[type][0]);
+      grad.addColorStop(1, orbStyles[type][1]);
+
+      // glow
+      ctx.shadowColor = orbStyles[type][0];
+      ctx.shadowBlur = 18;
+
+      ctx.beginPath();
+      ctx.fillStyle = grad;
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+    }
+  }
+}
