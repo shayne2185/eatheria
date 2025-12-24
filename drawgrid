@@ -1,0 +1,110 @@
+function drawGrid() {
+  const colors = [
+    { core1: "#22c55e", core2: "#14532d", glow: "rgba(34,197,94,0.45)" }, // life
+    { core1: "#64748b", core2: "#1e293b", glow: "rgba(148,163,184,0.4)" }, // stone
+    { core1: "#f97316", core2: "#7c2d12", glow: "rgba(249,115,22,0.45)" }, // fire
+    { core1: "#38bdf8", core2: "#0c4a6e", glow: "rgba(56,189,248,0.45)" }, // water
+    { core1: "#e5e7eb", core2: "#334155", glow: "rgba(226,232,240,0.4)" }  // air
+  ];
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const type = grid[r][c];
+      if (type === null) continue;
+
+      const x = gridOffsetX + c * SIZE + SIZE / 2;
+      const y = gridOffsetY + r * SIZE + SIZE / 2;
+      const radius = SIZE * 0.38;
+      const t = performance.now() * 0.002;
+
+      ctx.save();
+
+      // ===== OUTER GLOW (aurora halo) =====
+      const glow = ctx.createRadialGradient(
+        x, y, radius * 0.4,
+        x, y, radius * 1.6
+      );
+      glow.addColorStop(0, colors[type].glow);
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ===== CORE ORB =====
+      const grad = ctx.createLinearGradient(
+        x - radius, y - radius,
+        x + radius, y + radius
+      );
+      grad.addColorStop(0, colors[type].core1);
+      grad.addColorStop(1, colors[type].core2);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ===== BREATHING HIGHLIGHT =====
+      ctx.globalAlpha = 0.25 + Math.sin(t + r + c) * 0.08;
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.arc(
+        x - radius * 0.3,
+        y - radius * 0.3,
+        radius * 0.35,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // ===== INNER ICON (ZEN STYLE) =====
+      ctx.strokeStyle = "rgba(255,255,255,0.75)";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+
+      ctx.beginPath();
+      switch (type) {
+        case 0: // life (leaf)
+          ctx.moveTo(x, y + radius * 0.2);
+          ctx.quadraticCurveTo(x + radius * 0.4, y - radius * 0.3, x, y - radius * 0.5);
+          ctx.quadraticCurveTo(x - radius * 0.4, y - radius * 0.3, x, y + radius * 0.2);
+          break;
+
+        case 1: // stone
+          ctx.moveTo(x - radius * 0.35, y);
+          ctx.lineTo(x, y - radius * 0.3);
+          ctx.lineTo(x + radius * 0.35, y);
+          ctx.lineTo(x, y + radius * 0.35);
+          ctx.closePath();
+          break;
+
+        case 2: // fire
+          ctx.moveTo(x, y + radius * 0.35);
+          ctx.quadraticCurveTo(x + radius * 0.4, y, x, y - radius * 0.5);
+          ctx.quadraticCurveTo(x - radius * 0.35, y, x, y + radius * 0.35);
+          break;
+
+        case 3: // water
+          ctx.moveTo(x, y - radius * 0.45);
+          ctx.quadraticCurveTo(x + radius * 0.4, y + radius * 0.1, x, y + radius * 0.45);
+          ctx.quadraticCurveTo(x - radius * 0.4, y + radius * 0.1, x, y - radius * 0.45);
+          break;
+
+        case 4: // air (spiral)
+          for (let a = 0; a < Math.PI * 2; a += 0.3) {
+            const rr = radius * 0.12 + a * 3;
+            ctx.lineTo(
+              x + Math.cos(a) * rr,
+              y + Math.sin(a) * rr
+            );
+          }
+          break;
+      }
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+}
