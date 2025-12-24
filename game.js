@@ -243,3 +243,71 @@ function drawGrid() {
     }
   }
 }
+function drawIcon(type, x, y, size) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const s = size * 0.4;
+
+  switch (type) {
+
+    // 🌿 LIFE – list
+    case 0:
+      ctx.strokeStyle = "rgba(220,255,220,0.9)";
+      ctx.lineWidth = size * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(0, s);
+      ctx.quadraticCurveTo(s * 0.6, 0, 0, -s);
+      ctx.quadraticCurveTo(-s * 0.6, 0, 0, s);
+      ctx.stroke();
+      break;
+
+    // 🪨 STONE – kryštál
+    case 1:
+      ctx.strokeStyle = "rgba(220,220,220,0.85)";
+      ctx.lineWidth = size * 0.07;
+      ctx.beginPath();
+      ctx.moveTo(0, -s);
+      ctx.lineTo(s * 0.7, 0);
+      ctx.lineTo(0, s);
+      ctx.lineTo(-s * 0.7, 0);
+      ctx.closePath();
+      ctx.stroke();
+      break;
+
+    // 🔥 FIRE – plameň
+    case 2:
+      ctx.strokeStyle = "rgba(255,220,180,0.9)";
+      ctx.lineWidth = size * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(0, s);
+      ctx.quadraticCurveTo(s * 0.8, 0, 0, -s);
+      ctx.quadraticCurveTo(-s * 0.6, 0, 0, s);
+      ctx.stroke();
+      break;
+
+    // 💧 WATER – kvapka
+    case 3:
+      ctx.strokeStyle = "rgba(220,240,255,0.9)";
+      ctx.lineWidth = size * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(0, -s);
+      ctx.quadraticCurveTo(s, s * 0.3, 0, s);
+      ctx.quadraticCurveTo(-s, s * 0.3, 0, -s);
+      ctx.stroke();
+      break;
+
+    // 🌬️ ETHER – špirála
+    case 4:
+      ctx.strokeStyle = "rgba(245,245,255,0.9)";
+      ctx.lineWidth = size * 0.07;
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 0.6, Math.PI * 0.3, Math.PI * 1.8);
+      ctx.stroke();
+      break;
+  }
+
+  ctx.restore();
+}
