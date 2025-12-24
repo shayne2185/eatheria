@@ -36,7 +36,7 @@ function drawGrid() {
       ctx.fillStyle = grad;
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
-
+drawIcon(grid[r][c], x, y, SIZE);
       ctx.shadowBlur = 0;
     }
   }
