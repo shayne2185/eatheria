@@ -137,7 +137,7 @@ function drawGrid() {
 
       // ★ FIX: pixel-perfect icon size (always even number)
       const img = ICONS[t];
-      const iconSize = Math.floor(SIZE * 0.72); // 72% veľkosť, krásny pomer
+      const iconSize = Math.floor(SIZE * 0.82); // 82% veľkosť, krásny pomer
       const ix = Math.floor(x + (SIZE - iconSize) / 2);
       const iy = Math.floor(y + (SIZE - iconSize) / 2);
 
