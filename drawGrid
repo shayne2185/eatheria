@@ -1,50 +1,38 @@
-function drawIcon(type, x, y, size) {
-  ctx.save();
-  ctx.translate(x, y);
+function drawGrid() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const type = grid[r][c];
+      if (type === null) continue;
 
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = size * 0.12;
-  ctx.globalAlpha = 1;
+      const x = gridOffsetX + c * SIZE + SIZE / 2;
+      const y = gridOffsetY + r * SIZE + SIZE / 2;
 
-  const s = size * 0.28;
+      // ORB
+      const colors = [
+        "#22c55e", // life
+        "#64748b", // stone
+        "#f97316", // fire
+        "#38bdf8", // water
+        "#e5e7eb"  // air
+      ];
 
-  ctx.beginPath();
+      ctx.fillStyle = colors[type];
+      ctx.beginPath();
+      ctx.arc(x, y, SIZE * 0.38, 0, Math.PI * 2);
+      ctx.fill();
 
-  if (type === 0) {
-    // LIFE – list
-    ctx.moveTo(0, s);
-    ctx.quadraticCurveTo(s, 0, 0, -s);
-    ctx.quadraticCurveTo(-s, 0, 0, s);
+      // DEBUG IKONA – ČERVENÝ KRÍŽ (NEMOŽNO NEVIDIEŤ)
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x - 15, y - 15);
+      ctx.lineTo(x + 15, y + 15);
+      ctx.moveTo(x + 15, y - 15);
+      ctx.lineTo(x - 15, y + 15);
+      ctx.stroke();
+
+      // SKUTOČNÁ IKONKA
+      drawIcon(type, x, y, SIZE);
+    }
   }
-
-  if (type === 1) {
-    // STONE
-    ctx.moveTo(0, -s);
-    ctx.lineTo(s, 0);
-    ctx.lineTo(0, s);
-    ctx.lineTo(-s, 0);
-    ctx.closePath();
-  }
-
-  if (type === 2) {
-    // FIRE
-    ctx.moveTo(0, s);
-    ctx.quadraticCurveTo(s * 0.8, 0, 0, -s);
-    ctx.quadraticCurveTo(-s * 0.6, 0, 0, s);
-  }
-
-  if (type === 3) {
-    // WATER
-    ctx.moveTo(0, -s);
-    ctx.quadraticCurveTo(s, s * 0.5, 0, s);
-    ctx.quadraticCurveTo(-s, s * 0.5, 0, -s);
-  }
-
-  if (type === 4) {
-    // ETHER – špirála
-    ctx.arc(0, 0, s, Math.PI * 0.3, Math.PI * 1.8);
-  }
-
-  ctx.stroke();
-  ctx.restore();
 }
