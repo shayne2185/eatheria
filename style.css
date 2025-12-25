@@ -22,10 +22,10 @@ html, body {
 
 #menu h1 {
   font-weight: 300;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.18em;
   margin-bottom: 30px;
-  font-size: 32px;
-  opacity: 0.9;
+  font-size: 30px;
+  opacity: 0.95;
 }
 
 /* START BUTTON */
@@ -38,12 +38,13 @@ html, body {
   font-weight: 500;
   color: #020617;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
 #startBtn:hover {
   transform: scale(1.05);
-  opacity: 0.95;
+  opacity: 0.96;
 }
 
 #startBtn:active {
