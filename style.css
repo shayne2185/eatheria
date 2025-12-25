@@ -1,57 +1,56 @@
-html, body {
+/* Reset */
+body, html {
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle at top, #020617, #000);
+  height: 100%;
   overflow: hidden;
-  touch-action: none;
-  font-family: system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top, #1e2333, #05060b 80%);
+  font-family: "Inter", system-ui, sans-serif;
+  color: white;
 }
 
 /* MENU */
 #menu {
-  position: fixed;
+  position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at 40% 20%, #0f172a, #020617 70%);
-  color: white;
-  text-align: center;
+  justify-content: center;
+  gap: 32px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
 }
 
-#menu h1 {
+.title {
+  font-size: 48px;
+  letter-spacing: 6px;
   font-weight: 300;
-  letter-spacing: 0.18em;
-  margin-bottom: 30px;
-  font-size: 30px;
-  opacity: 0.95;
+  text-shadow: 0 0 18px rgba(255,255,255,0.25);
 }
 
-/* START BUTTON */
-#startBtn {
-  padding: 16px 40px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #38bdf8, #22c55e);
+/* BUTTON */
+.start-btn {
+  padding: 14px 36px;
   font-size: 20px;
-  font-weight: 500;
-  color: #020617;
+  border-radius: 12px;
+  border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+  font-weight: 500;
+  letter-spacing: 1px;
+  box-shadow: 0 0 18px rgba(0, 200, 255, 0.35);
+  transition: 0.2s ease;
 }
 
-#startBtn:hover {
+.start-btn:hover {
   transform: scale(1.05);
-  opacity: 0.96;
+  box-shadow: 0 0 28px rgba(0, 200, 255, 0.55);
 }
 
-#startBtn:active {
-  transform: scale(0.97);
-}
-
-/* CANVAS */
-canvas {
+#game {
   display: none;
+  width: 100vw;
+  height: 100vh;
 }
