@@ -13,8 +13,8 @@ ctx.mozImageSmoothingEnabled = false;
 const menu = document.getElementById("menu");
 const startBtn = document.getElementById("startBtn");
 
-const COLS = 6;
-const ROWS = 7;
+const COLS = 5;
+const ROWS = 5;
 
 let SIZE = 0;
 let offsetX = 0;
