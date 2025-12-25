@@ -7,6 +7,7 @@ html, body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+/* MENU */
 #menu {
   position: fixed;
   inset: 0;
@@ -14,24 +15,42 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at top, #020617, #020617);
+  background: radial-gradient(circle at 40% 20%, #0f172a, #020617 70%);
   color: white;
+  text-align: center;
 }
 
 #menu h1 {
   font-weight: 300;
   letter-spacing: 0.08em;
   margin-bottom: 30px;
+  font-size: 32px;
+  opacity: 0.9;
 }
 
+/* START BUTTON */
 #startBtn {
-  padding: 14px 34px;
+  padding: 16px 40px;
   border-radius: 999px;
   border: none;
   background: linear-gradient(135deg, #38bdf8, #22c55e);
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #020617;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+#startBtn:hover {
+  transform: scale(1.05);
+  opacity: 0.95;
+}
+
+#startBtn:active {
+  transform: scale(0.97);
+}
+
+/* CANVAS */
 canvas {
   display: none;
 }
